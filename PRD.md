@@ -10,130 +10,80 @@ Roadside assistance is the moment of truth in auto insurance: the customer is st
 
 **RoadAssist Co-Pilot** turns that call into a guided rescue. A voice agent collects information about the situation, an AI assistant judges coverage against the customer's policy with cited evidence, decides what action to take and dispatches the repair/tow truck. A human supervisor is looped in for low confidence/high claim amounts before the decision is made. The customer is automatically updated on the processing steps and the decision. We compress time-to-reassurance from minutes to ~30 seconds while keeping a licensed human accountable.
 
-**12-month goals:** −60% average handle time, ≥ 95% coverage-decision accuracy vs. expert review, +15 NPS on roadside events.
+**12-month KPIs:** We use agent efficiency optimization and customer satisfaction as the main KPIs. The goal is to reduce costs for clients and increase customer retention.
+
+- **Agent — productivity:** −50% average handle time.
+- **Model — decision quality:** ≥ 90% coverage-decision accuracy vs. expert review.
+- **Customer — satisfaction:** post-event CSAT ≥ 4.5 / 5.
+- **Customer — outcome:** −25% time-to-dispatch (call open → truck dispatched).
 
 ## 2. Key Features
 
-The product has two users with very different UX needs. The **stranded customer** is single-task and stressed: the voice agent prioritizes empathy, slow clear speech, immediate reassurance ("help is on the way"), and a single next step at a time. The **carrier agent** is multi-tasking and accountable: the cockpit prioritizes information density, evidence-at-a-glance (cited clauses, confidence, photos in the same viewport), and one-click overrides. Every feature below is shaped by which persona it serves, and §6 describes the AI behind them.
+Two users with opposite UX needs: the **stranded customer** (stressed, worried — voice agent prioritizes empathy and one next step at a time) and the **carrier agent** (multi-tasking, accountable — cockpit prioritizes information density and one-click overrides). We split the features into **Customer Experience (CX)**, **AI Decisioning (AI)** and **Human in the Loop (HL)**
 
-### F1 — Conversational voice intake
-
-A speech-to-speech voice agent answers the customer's call, gathers structured intake (identity, vehicle, location, damage), handles barge-in, and degrades gracefully on poor connections.
-
-### F2 — Multimodal evidence capture
-
-The customer can submit photos of the damage, scene, license plate, and odometer mid-conversation. The agent prompts for missing or low-quality images.
-
-### F3 — AI damage assessment
-
-A vision-language model rates damage type, severity (1–5), and drivability from the photos, driving the tow-vs-mobile-repair recommendation. See §6 for the full approach.
-
-### F4 — Explainable coverage check
-
-The AI compares the structured intake to the customer's policy and returns a decision with cited clauses, included / excluded items, deductibles, and a confidence score. Every decision is auditable end-to-end.
-
-### F5 — Next-best-action dispatch
-
-Selects the nearest in-network garage, picks the dispatch type (tow / mobile repair / taxi / rental), and surfaces ETAs. Integrates with the carrier's existing dispatch and CRM systems.
-
-### F6 — Human Agent cockpit
-
-Live transcript, extracted fields, flagged missing info, progress updates, editable customer message, one-click approve / override, and a full audit log. The carrier's licensed agents stay accountable for every customer-facing action.
-
-### F7 — Customer status update
-
-Once approved, the customer receives an SMS / email / App notification with the coverage decision, the dispatched provider, and an ETA.
-
-### F8 — Multi-language support
-
-The voice agent, message drafts, and human cockpit operate in the customer's language, detected automatically.
-
-### F9 — Fraud detection
-
-Lightweight fraud signals run in parallel with adjudication: repeat-caller patterns, location–vehicle mismatches, suspicious image metadata (re-used or stock photos), inconsistent intake answers, and known-bad-actor lists. Signals attach a risk score to the case and route high-risk claims to human specialist.
-
-### F10 — Live transfer to a human
-
-At any point — by customer request, low confidence, high severity, sensitive scenarios (injury, minors, vulnerable customers), or a fraud-risk threshold — the call hands off to a licensed human. The transfer carries the full context (transcript, extracted fields, current AI recommendation, photos) so the customer never has to repeat themselves.
-
-### F11 — White-label customer portal
-
-A white-label web/mobile portal where customers can self-serve: open a new claim, watch a live status timeline of a case, upload additional evidence, chat with the AI agent, and request a callback. The portal also exposes the customer's full claims history. The brand guidelines drive the voice agent (F1) and customer messages (F7) so the customer experiences one consistent brand across channels.
+- **F1. Conversational voice intake(CX)** — speech-to-speech, barge-in, graceful degradation on poor connections.
+- **F2. Multimodal evidence capture(CX)** — damage / scene / plate / odometer photos submitted mid-call.
+- **F3. Damage assessment(AI)** — video model rates damage type, severity (1–5), and recoverability from photos.
+- **F4. Explainable coverage check(AI)** — evaluates damage against the customer's policy with cited clauses, deductibles, and confidence.
+- **F5. Next-best-action dispatch(AI)** — picks the closest in-network provider with the right dispatch type (tow / mobile repair / taxi / rental) and ETA.
+- **F6. Agent cockpit(HL)** — live transcript, evidence at a glance, editable customer message, one-click approve / override, full audit log.
+- **F7. Customer status update(CX)** — SMS / email / app notification with decision, dispatched provider, and ETA.
+- **F8. Multi-language(CX)** — auto-detected at call open, scoped to the carrier's served markets; voice, messages, and cockpit follow the same locale.
+- **F9. Fraud detection(AI)** — risk-scores cases and routes high-risk ones to a specialist queue.
+- **F10. Live human transfer(HL)** — by request, low confidence, high severity, sensitive scenarios, or fraud risk; full context handed off so the customer never repeats themselves.
+- **F11. White-label customer portal(CX)** — self-service claim creation, live status timeline, evidence upload, claims history; white label CI branding for UI and voice.
 
 ## 3. Prioritization
 
 We optimize v1 around the **trust chain** — proving that AI-driven adjudication is safe and auditable enough for carriers to put in front of real customers. Optimize the core features.
 
-- **v1 (foundational MVP) — built in M0, deployed through M1 → M2 → M3:** F1–F7 plus F10 (live transfer). All claims go through a human in the loop while we earn system trust. Scope is limited to the carrier's primary language and the most common case types (mechanical breakdown, flat tire, accident-without-injury).
-- **v1.5 (post-pilot expansion) — kicks off when M2 is stable, ships during M3:** F8 (multi-language) and F9 (fraud detection). Both ride on the v1 architecture but need their own eval sets and operational playbooks before they can be trusted in production.
-- **v2 (customer-facing scale) — post-M3:** F11 (white-label customer portal with claims history), plus payment flows and automated subrogation. This shifts the product from an internal carrier tool to a customer-facing self-service surface and requires authentication, multi-tenant isolation, and stronger compliance controls.
+- **v1 (foundational MVP) — deployed through M1 → M2 → M3:** F1–F7 plus F10 (live transfer). All claims go through a human in the loop while we earn system trust. Scope is limited to the carrier's primary language and the most common case types (mechanical breakdown, flat tire, accident-without-injury).
+- **v1.5 (post-pilot expansion) — kicks off when M2 is stable, ships during M3:** F8 (multi-language) and F9 (fraud detection). Also include edge-cases for damages.
+- **v2 (customer-facing scale) — post-M3:** F11 (white-label customer portal with claims history), plus payment flows and automated third-party cost recovery. This shifts the product from an internal carrier tool to a customer-facing self-service surface and requires authentication, multi-tenant isolation, and stronger compliance controls.
 
 ## 4. Milestones & Quality Gates
 
-1. **M0 — v1 build on synthetic data + damage-model fine-tune (weeks 1–6):** Build v1 end-to-end on synthetic policies and garage data. Buy a licensed automotive damage dataset (~10–50k labeled photos) and supervised-fine-tune AI-2 on it; hold out 10% as the damage eval set. **Gate:** AI-2 macro-F1 ≥ 0.85 on the held-out set, ≥ 90% AI/expert agreement on a 50-case synthetic coverage eval, latency < 4 s, 100% citation coverage; carrier sponsor signed for M1.
-2. **M1 — v1 MVP shadow pilot in production (weeks 7–16):** v1 runs alongside human agents on real calls; agents always send their own message and correct AI extractions inline. Real overrides grow the eval set (~200 cases) and become the first real-data fine-tune for AI-2. **Gate:** ≥ 90% AI/agent agreement, AI-2 precision/recall on real photos within 5% of the licensed baseline, override rate stable two weeks, 0 unauthorized auto-sends.
-3. **M2 — v1 production write-back (months 5–7):** AI drives the suggested message and dispatch; agents approve / edit and click "send." Real CRM + dispatch + SMS / IVR / email integrations. **Gate:** P95 latency under target, no Sev-1 incidents in two weeks, full audit log. v1.5 (F8, F9) work begins in parallel.
-4. **M3 — v1 scaled automation; v1.5 in parallel (months 8–12):** auto-approve high-confidence, low-dollar v1 decisions; humans handle ambiguous, sensitive, or high-value cases. F8 and F9 deploy gated by their own eval sets. v2 (F11) work begins toward end of M3.
+0. **M0 - Build Phase**: the coverage check model is trained on policy data from client, the damage assessment model trained on licensed automotive damage dataset (~10–50k labeled photos).
+1. **M1 — v1 MVP shadow pilot in production (months 2–4):** v1 runs alongside human agents on real calls; agents always send their own message and correct AI extractions inline. **Gate:** **model** ≥ 80% AI / agent agreement on coverage; **agent** and **customer** KPIs baselined (no regression vs. pre-AI); AI-2 precision / recall on real photos within 5% of the licensed baseline; override rate stable two weeks; 0 unauthorized auto-sends.
+2. **M2 — v1 production write-back (months 5–7):** AI drives the suggested message and dispatch; agents approve / edit and click "send." **Gate:** **model** ≥ 90% coverage-decision accuracy; **agent** −25% handle time; **customer** CSAT ≥ 4.3 / 5 and −15% time-to-resolution; P95 latency under target; no Sev-1 incidents in two weeks; full audit log per case. v1.5 (F8, F9) work begins in parallel.
+3. **M3 — v1 scaled automation; v1.5 in parallel (months 8–12):** auto-approve high-confidence, low-dollar v1 decisions; humans handle ambiguous, sensitive, or high-value cases. **Gate:** **model** ≥ 90% sustained accuracy and ≥ 98% precision on auto-approved cases; **agent** −50% handle time; **customer** CSAT ≥ 4.5 / 5 and −25% time-to-resolution. F8 / F9 deploy gated by their own eval sets; v2 (F11) work begins toward the end.
 
-## 5. Technical Risks
+## 5. Technical Risks & Mitigation
 
-**Hallucinated coverage decisions.** Structured outputs require a clause citation; uncited answers are rejected and retried, and a human approves every decision through M2.
-
-**Policy retrieval accuracy.** Per-customer policy index with chunked, embedded clauses; the eval set covers exclusions, deductibles, and regional variants.
-
-**Voice agent quality on noisy roadsides.** Domain ASR with custom vocabulary (car models, license plates) and a typed fallback; agents can correct extracted fields inline.
-
-**Wrong dispatch.** Human approval gates dispatch through M2; auto-mode in M3 is gated by confidence and a dollar threshold; full audit log per decision.
-
-**PII / GDPR.** Redact transcripts at ingest, regional data residency, configurable retention, no training on customer data, DPA with all upstream providers.
-
-**Latency & unit cost.** Stream partial responses, cache policy embeddings, route simple cases to a smaller model, per-call budget.
-
-**Multi-tenancy retrofit.** Even though the customer-facing white-label portal (F11) ships in v2, v1 is built tenant-ready: scoped data model, per-tenant config and secrets, branding / persona / locale as configuration, no shared mutable state across carriers, isolation tests in CI.
-
-**Damage-model dataset & drift.** The licensed dataset must cover the carrier's vehicle mix and jurisdictions; license terms (commercial use, derivative models, retention) reviewed up front; per-class drift tracked and re-fine-tuned on a fixed cadence; the licensed held-out set is immutable so accuracy is comparable across model versions.
+- **Hallucinated coverage decisions** — required clause citations + structured outputs + human approval through M2.
+- **Policy retrieval accuracy** — per-customer chunked / embedded policy index; eval set covers exclusions, deductibles, regional variants.
+- **Voice agent quality on noisy roadsides** — domain ASR with custom vocabulary, typed fallback, and inline agent correction.
+- **Wrong dispatch** — human approval through M2; M3 auto-mode gated by confidence + dollar threshold; full audit log per decision.
+- **PII / GDPR** — redact at ingest, regional residency, configurable retention, no training on customer data, DPA with providers.
+- **Damage-model dataset & drift** — licensed dataset must cover the carrier's vehicle mix and jurisdictions; immutable held-out set; per-class drift tracked and re-fine-tuned on cadence.
 
 ## 6. AI Integration
 
-AI runs at several discrete touchpoints in the workflow. Each one sits behind a stable schema so the carrier is never locked in to a single provider, and each has its own eval loop and guardrails. Every AI output is validated against a JSON schema server-side; failures fall back to a "needs human review" state rather than silently degrading.
+Each AI touchpoint sits behind a stable schema with its own eval loop and guardrails; outputs are JSON-schema validated server-side, and failures route to "needs human review."
 
-**AI-1 — Voice agent (F1).** Real-time speech-to-speech that runs the customer conversation: STT, dialogue, TTS, and tool calls that populate the intake schema. Models: OpenAI Realtime, ElevenLabs Conversational AI, or a Deepgram ASR + LLM + Cartesia / ElevenLabs TTS pipeline, fronted by Twilio or LiveKit telephony.
-
-**AI-2 — Damage assessment (F3).** Multimodal vision-language model that scores customer photos against a strict schema, self-hosted so photos stay on carrier infrastructure. Supervised-fine-tuned on a licensed automotive damage dataset in M0 and re-fine-tuned periodically on production overrides. Models: an open-weights VLM base (Qwen-VL, InternVL) or a licensed closed-weight model that supports vision fine-tuning. See the deeper-dive subsection below.
-
-**AI-3 — Policy retrieval (supports F4).** Embedding model + per-customer vector index over the policy text; returns the top-k relevant clauses for AI-4. Models: a current-generation embeddings model (e.g. OpenAI `text-embedding-3-large`) or a self-hosted alternative.
-
-**AI-4 — Coverage adjudication (F4).** Text LLM that adjudicates the case against the retrieved clauses, with strict JSON schema validation and required clause citations. Models: a frontier text LLM — OpenAI, Anthropic, or Gemini — chosen on cost / latency / accuracy and swappable through the adapter layer.
-
-**AI-5 — Next-best-action (F5).** Deterministic rule engine first (in-network filter, distance, hours, capacity), then a text LLM that ranks the top candidates with case context (severity, language, special needs). Models: any frontier text LLM is sufficient — the rule engine carries the safety-critical filtering.
-
-**AI-6 — Customer message draft (F7).** Text LLM that drafts the SMS / email / app notification under the carrier's tone-of-voice guide and the approved decision. Models: a smaller, cheaper text LLM is sufficient (GPT-4o-mini class today, a fine-tuned variant after several months of production); always human-approved before send.
+- **AI-1 — Voice agent (F1).** Real-time speech-to-speech populating the intake schema; OpenAI Realtime, ElevenLabs Conversational AI, or Pipecat / LiveKit Agents (open source).
+- **AI-2 — Damage assessment (F3).** Self-hosted multimodal VLM (Qwen-VL, InternVL, or a licensed closed-weight base), fine-tuned on a licensed dataset in the build phase and regularly re-fine-tuned on production overrides;
+- **AI-3 — Policy retrieval (RAG, supports F4).** Per-customer vector index returns top-k policy clauses relevant to the claim query; any current-generation embeddings model (e.g. OpenAI `text-embedding-3-large`) or a self-hosted equivalent.
+- **AI-4 — Coverage adjudication (F4).** Frontier LLM with strict JSON schema validation and required clause citations over the retrieved clauses; (OpenAI / Anthropic / Gemini). Distill into a smaller task-specific model at ~5k labeled cases.
+- **AI-5 — Next-best-action (F5).** Deterministic rule engine first (in-network filter, distance, hours, capacity), then an LLM ranks top candidates with case context; the rule engine carries the safety-critical filtering.
+- **AI-6 — Customer message draft (F7).** Text LLM drafts the customer message under the carrier's tone-of-voice guide; always human-approved; a smaller LLM (GPT-4o-mini class) suffices.
 
 ### Damage assessment (AI-2) — closer look
 
-Damage assessment is a constrained vision-language task with a strict schema and is the one AI touchpoint where we own labeled training data, so it is also the one we fine-tune.
+The one AI touchpoint where we own labeled training data, so the one we fine-tune. **Inputs:** photo(s), transcript snippet, vehicle metadata. **Output (validated JSON):** damage type, severity (1–5), drivability, confidence, evidence, recommended action. **Approach:** supervised-fine-tune an open-weights VLM in the build phase on the licensed dataset (≥ 10k stratified images), then re-fine-tune at end of M1 on ~200 real cases and every ~1k thereafter. **Why here, not elsewhere:** narrow schema, expensive multimodal inference, sensitive customer photos — self-hosting wins on accuracy, cost, latency, and data residency; the other touchpoints stay on frontier closed APIs where broad reasoning matters more. **Limitations:** rare damage, occlusion, fraud (re-used images), poor lighting, OOD vehicles. **Eval:** held-out 10% of the licensed set + real-case golden set; precision / recall, false-tow rate, per-class drift; weekly override review.
 
-**Inputs:** customer photo(s), transcript snippet, vehicle metadata.
-**Output (validated JSON):** `damageType`, `severity (1–5)`, `drivable`, `confidence (0–1)`, `evidenceFromImage`, `recommendedAction`.
-**Approach:** start from an open-weights multimodal base (e.g. Qwen-VL, InternVL, or a licensed closed-weight model that supports vision fine-tuning). Supervised-fine-tune in M0 on the licensed automotive damage dataset (≥ 10k images, stratified across damage class, severity, vehicle type, and lighting / occlusion conditions). Re-fine-tune at the end of M1 on the first ~200 real cases plus their human-corrected labels, then on every ~1k accumulated real cases thereafter.
-**Why fine-tune AI-2 specifically (and not the others):** we have a labeled corpus, the task is narrow and bounded by a tight schema, multimodal inference is the most expensive call in the system, and customer photos are the most sensitive payload — self-hosting a fine-tuned model gives us all four wins (accuracy, cost, latency, data residency). The other touchpoints (AI-1, AI-3 to AI-6) keep using frontier closed APIs because their value is broad reasoning and language understanding, which fine-tuning a smaller model would degrade.
-**Limitations we plan around:** misclassification of rare damage, occluded photos, intentional fraud (re-used images), poor lighting, and out-of-distribution vehicles relative to the licensed dataset. **Eval:** held-out 10% of the licensed dataset plus the growing real-case golden set, tracking precision / recall, false-tow rate, and per-class drift; weekly review of human overrides as the leading regression indicator.
-_Prototype note: the case-study demo uses an off-the-shelf multimodal call (OpenAI `gpt-5.4-mini`) instead of a fine-tune — fine-tuning is out of scope for a 5–6h prototype but is the M0 deliverable in production._
+### Trade-offs we accept
 
-### Model choices and trade-offs
-
-We deliberately use different model classes per touchpoint because the constraints differ. **Real-time speech-to-speech** (AI-1) is required for natural conversation — sub-500 ms first-token latency is what makes the difference between "talking to the carrier" and "talking to a chatbot." A **multimodal VLM** (AI-2) is required because the evidence is visual; a text-only model would be guessing. **Embeddings + structured-output text LLM** (AI-3, AI-4) for adjudication isolates the customer's policy in scope and produces auditable citations. We considered stuffing the policy into a single long-context LLM call but rejected it: cost grows with every call, citation reliability degrades, and per-customer policy isolation becomes a security argument we don't want to have.
-
-The trade-offs we accept openly: LLMs hallucinate (mitigated by required citations + structured outputs + human gate); multimodal calls cost ~5–10× text-only (used only where vision is unavoidable); real-time voice has provider lock-in risk (mitigated, not eliminated, by the adapter layer).
+LLMs hallucinate — mitigated by required citations, structured outputs, and the human gate. Multimodal calls cost ~5–10× text-only — used only where vision is unavoidable. Real-time voice has provider lock-in — mitigated, not eliminated, by the adapter layer. We rejected a long-context "stuff the policy in" approach on cost, citation reliability, and per-customer isolation grounds.
 
 ### Guardrails
 
-Every AI output is JSON-schema validated server-side; any failure routes the case to "needs human review" rather than silently degrading. Every coverage decision must include a clause citation; uncited answers are rejected and retried. Confidence thresholds gate auto-action — below threshold, missing data, or low-quality images trigger an explicit re-prompt or human escalation. Severity ≥ 4, sensitive scenarios (injury, minors, vulnerable customers), and high fraud-risk scores always escalate to a human regardless of confidence. Every AI touchpoint has an independent kill-switch that falls back to the pre-AI workflow.
+All AI outputs are JSON-schema validated server-side; failures route to "needs human review." Coverage decisions require a clause citation or are rejected and retried. Confidence thresholds gate auto-action; below threshold, missing data, or low-quality images trigger re-prompt or escalation. Severity ≥ 4, sensitive scenarios (injury, minors, vulnerable customers), and high fraud-risk scores always escalate. Each AI touchpoint has an independent kill-switch back to the pre-AI workflow.
 
 ### Improvement strategy
 
-1. **M0:** AI-2 supervised fine-tune on the licensed damage dataset (above). For all other touchpoints, prompt and retrieval iteration against the synthetic eval set.
-2. **End of M1 onward:** re-fine-tune AI-2 on accumulated real cases (~200 at end of M1, every ~1k thereafter), with each new model gated by a CI eval against the licensed held-out set + the real golden set.
-3. **Months 4–6 of production:** fine-tune the customer-message-draft model (AI-6) on approved messages to match each carrier's tone-of-voice without prompt bloat.
-4. **Months 7–12 of production:** distill the coverage-adjudication model (AI-4) into a smaller, cheaper task-specific model once we have ~5k labeled cases. Re-evaluate model providers quarterly on cost / latency / accuracy; the adapter layer makes a swap a configuration change.
-5. **Always-on:** human override rate is the leading regression signal; weekly eval re-runs gate any prompt, fine-tune, or provider change. LLM-as-judge against the golden set runs in CI.
+1. **Build phase:** AI-2 supervised fine-tune on the licensed dataset; prompt and retrieval iteration on all other touchpoints against the synthetic eval set.
+2. **End of M1+:** re-fine-tune AI-2 on accumulated real cases (~200 at end of M1, every ~1k thereafter), gated by CI eval against the licensed held-out + real golden set.
+3. **Production months 4–6:** fine-tune AI-6 on approved messages for carrier-specific tone-of-voice.
+4. **Production months 7–12:** distill AI-4 into a smaller task-specific model at ~5k labeled cases; re-evaluate providers quarterly via the adapter layer.
+5. **Always-on:** human override rate is the leading regression signal; weekly eval re-runs gate every prompt / fine-tune / provider change.
