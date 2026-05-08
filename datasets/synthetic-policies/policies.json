@@ -1,0 +1,462 @@
+[
+  {
+    "policyId": "RA-1001",
+    "customerName": "Maya Chen",
+    "vehicle": {
+      "year": 2021,
+      "make": "Toyota",
+      "model": "RAV4 Hybrid",
+      "vinLast4": "2841"
+    },
+    "plan": "RoadAssist Plus",
+    "effectiveDates": {
+      "start": "2026-01-01",
+      "end": "2026-12-31"
+    },
+    "roadside": {
+      "towMilesIncluded": 50,
+      "mobileRepairCovered": true,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": true,
+      "taxiOrRentalCovered": false
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 500,
+      "glassDeductibleUsd": 100,
+      "tireReplacementCovered": false,
+      "cosmeticScratchCovered": false
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1001-C1",
+        "title": "Emergency towing",
+        "text": "Emergency towing is covered up to 50 miles when the insured vehicle cannot be safely driven after a sudden mechanical failure, road hazard, or collision."
+      },
+      {
+        "clauseId": "RA-1001-C2",
+        "title": "Road hazard tire damage",
+        "text": "Roadside assistance covers dispatch and towing for a disabled vehicle, but does not cover tire replacement, tire purchase, or wheel alignment."
+      },
+      {
+        "clauseId": "RA-1001-C3",
+        "title": "Alternative transport",
+        "text": "Taxi, rideshare, and rental reimbursement are not included unless the policy has the Mobility Plus endorsement."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1002",
+    "customerName": "Daniel Reed",
+    "vehicle": {
+      "year": 2019,
+      "make": "Honda",
+      "model": "Civic",
+      "vinLast4": "9175"
+    },
+    "plan": "Basic Roadside",
+    "effectiveDates": {
+      "start": "2025-11-15",
+      "end": "2026-11-14"
+    },
+    "roadside": {
+      "towMilesIncluded": 15,
+      "mobileRepairCovered": false,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": false,
+      "taxiOrRentalCovered": false
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 1000,
+      "glassDeductibleUsd": 250,
+      "tireReplacementCovered": false,
+      "cosmeticScratchCovered": false
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1002-C1",
+        "title": "Limited towing",
+        "text": "The policy covers one tow per incident up to 15 miles to the nearest qualified repair facility."
+      },
+      {
+        "clauseId": "RA-1002-C2",
+        "title": "No roadside consumables",
+        "text": "Fuel, replacement tires, batteries, parts, and shop labor are excluded from Basic Roadside benefits."
+      },
+      {
+        "clauseId": "RA-1002-C3",
+        "title": "Collision deductible",
+        "text": "Collision damage is subject to the listed deductible unless another party accepts liability."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1003",
+    "customerName": "Elena Alvarez",
+    "vehicle": {
+      "year": 2023,
+      "make": "Tesla",
+      "model": "Model 3",
+      "vinLast4": "6032"
+    },
+    "plan": "Premium Mobility",
+    "effectiveDates": {
+      "start": "2026-03-01",
+      "end": "2027-02-28"
+    },
+    "roadside": {
+      "towMilesIncluded": 100,
+      "mobileRepairCovered": true,
+      "lockoutCovered": true,
+      "batteryJumpCovered": false,
+      "fuelDeliveryCovered": false,
+      "taxiOrRentalCovered": true
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 250,
+      "glassDeductibleUsd": 0,
+      "tireReplacementCovered": true,
+      "cosmeticScratchCovered": true
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1003-C1",
+        "title": "Premium towing",
+        "text": "The policy covers towing up to 100 miles, including EV-certified tow providers where available."
+      },
+      {
+        "clauseId": "RA-1003-C2",
+        "title": "Mobility Plus",
+        "text": "Taxi, rideshare, or rental reimbursement is covered up to 75 USD per day for up to three days when the vehicle is disabled by a covered loss."
+      },
+      {
+        "clauseId": "RA-1003-C3",
+        "title": "EV exclusions",
+        "text": "Battery depletion caused solely by failure to charge is not a covered mechanical failure."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1004",
+    "customerName": "Noah Williams",
+    "vehicle": {
+      "year": 2017,
+      "make": "Ford",
+      "model": "F-150",
+      "vinLast4": "4489"
+    },
+    "plan": "Commercial Light Use",
+    "effectiveDates": {
+      "start": "2025-09-01",
+      "end": "2026-08-31"
+    },
+    "roadside": {
+      "towMilesIncluded": 35,
+      "mobileRepairCovered": true,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": true,
+      "taxiOrRentalCovered": false
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 750,
+      "glassDeductibleUsd": 250,
+      "tireReplacementCovered": false,
+      "cosmeticScratchCovered": false
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1004-C1",
+        "title": "Commercial use limitation",
+        "text": "Roadside assistance applies to light commercial use only and excludes towing while carrying hazardous materials or operating above rated payload."
+      },
+      {
+        "clauseId": "RA-1004-C2",
+        "title": "Mobile repair",
+        "text": "Mobile repair dispatch is covered when a provider can reasonably restore drivability at the roadside."
+      },
+      {
+        "clauseId": "RA-1004-C3",
+        "title": "Payload exclusion",
+        "text": "Damage caused by overloading, improper cargo securement, or payload above manufacturer limits is excluded."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1005",
+    "customerName": "Aisha Khan",
+    "vehicle": {
+      "year": 2020,
+      "make": "BMW",
+      "model": "330i",
+      "vinLast4": "7750"
+    },
+    "plan": "Comprehensive Select",
+    "effectiveDates": {
+      "start": "2026-02-10",
+      "end": "2027-02-09"
+    },
+    "roadside": {
+      "towMilesIncluded": 25,
+      "mobileRepairCovered": false,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": true,
+      "taxiOrRentalCovered": true
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 500,
+      "glassDeductibleUsd": 0,
+      "tireReplacementCovered": false,
+      "cosmeticScratchCovered": true
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1005-C1",
+        "title": "Glass coverage",
+        "text": "Windshield and window glass repair or replacement is covered with no deductible after a covered comprehensive glass loss."
+      },
+      {
+        "clauseId": "RA-1005-C2",
+        "title": "Rental reimbursement",
+        "text": "Rental reimbursement is available after a covered roadside disablement, collision, or comprehensive loss, but not for routine maintenance or non-disabled vehicle service."
+      },
+      {
+        "clauseId": "RA-1005-C3",
+        "title": "Roadside towing",
+        "text": "Towing is covered up to 25 miles to the nearest in-network garage."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1006",
+    "customerName": "Owen Murphy",
+    "vehicle": {
+      "year": 2015,
+      "make": "Subaru",
+      "model": "Outback",
+      "vinLast4": "1204"
+    },
+    "plan": "Mountain Roadside",
+    "effectiveDates": {
+      "start": "2025-12-01",
+      "end": "2026-11-30"
+    },
+    "roadside": {
+      "towMilesIncluded": 75,
+      "mobileRepairCovered": true,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": true,
+      "taxiOrRentalCovered": false
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 500,
+      "glassDeductibleUsd": 150,
+      "tireReplacementCovered": true,
+      "cosmeticScratchCovered": false
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1006-C1",
+        "title": "Remote towing",
+        "text": "Towing is covered up to 75 miles when the vehicle is disabled on a public road or maintained private access road."
+      },
+      {
+        "clauseId": "RA-1006-C2",
+        "title": "Off-road exclusion",
+        "text": "Recovery is excluded when the vehicle is off-road, on an unmaintained trail, or intentionally used beyond ordinary passenger travel."
+      },
+      {
+        "clauseId": "RA-1006-C3",
+        "title": "Tire hazard endorsement",
+        "text": "The tire hazard endorsement covers replacement of one tire damaged by a covered road hazard, subject to availability."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1007",
+    "customerName": "Priya Nair",
+    "vehicle": {
+      "year": 2022,
+      "make": "Hyundai",
+      "model": "Ioniq 5",
+      "vinLast4": "5316"
+    },
+    "plan": "EV Standard",
+    "effectiveDates": {
+      "start": "2026-04-01",
+      "end": "2027-03-31"
+    },
+    "roadside": {
+      "towMilesIncluded": 40,
+      "mobileRepairCovered": false,
+      "lockoutCovered": true,
+      "batteryJumpCovered": false,
+      "fuelDeliveryCovered": false,
+      "taxiOrRentalCovered": false
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 750,
+      "glassDeductibleUsd": 200,
+      "tireReplacementCovered": false,
+      "cosmeticScratchCovered": false
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1007-C1",
+        "title": "EV tow benefit",
+        "text": "EV towing is covered up to 40 miles to the nearest EV-capable repair or charging facility after a covered roadside event."
+      },
+      {
+        "clauseId": "RA-1007-C2",
+        "title": "Charging exclusion",
+        "text": "Running out of charge due to driver error is not covered, but dispatch to a charging location may be arranged at the customer's expense."
+      },
+      {
+        "clauseId": "RA-1007-C3",
+        "title": "No rental endorsement",
+        "text": "The policy does not include rental, taxi, or rideshare reimbursement."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1008",
+    "customerName": "Grace Miller",
+    "vehicle": {
+      "year": 2018,
+      "make": "Mazda",
+      "model": "CX-5",
+      "vinLast4": "6608"
+    },
+    "plan": "Family Complete",
+    "effectiveDates": {
+      "start": "2025-10-20",
+      "end": "2026-10-19"
+    },
+    "roadside": {
+      "towMilesIncluded": 60,
+      "mobileRepairCovered": true,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": true,
+      "taxiOrRentalCovered": true
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 300,
+      "glassDeductibleUsd": 0,
+      "tireReplacementCovered": true,
+      "cosmeticScratchCovered": true
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1008-C1",
+        "title": "Family transport",
+        "text": "If children or medically vulnerable passengers are present, the carrier may authorize taxi or rideshare up to 100 USD after a covered disablement."
+      },
+      {
+        "clauseId": "RA-1008-C2",
+        "title": "Mobile repair preference",
+        "text": "Mobile repair should be dispatched before towing when the reported issue is battery, lockout, minor tire puncture, or fuel delivery."
+      },
+      {
+        "clauseId": "RA-1008-C3",
+        "title": "Road hazard coverage",
+        "text": "Road hazard damage to tires and wheels is covered up to 600 USD per incident."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1009",
+    "customerName": "Lucas Schneider",
+    "vehicle": {
+      "year": 2016,
+      "make": "Volkswagen",
+      "model": "Golf",
+      "vinLast4": "0942"
+    },
+    "plan": "Liability + Roadside",
+    "effectiveDates": {
+      "start": "2026-01-15",
+      "end": "2027-01-14"
+    },
+    "roadside": {
+      "towMilesIncluded": 20,
+      "mobileRepairCovered": true,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": true,
+      "taxiOrRentalCovered": false
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": null,
+      "glassDeductibleUsd": null,
+      "tireReplacementCovered": false,
+      "cosmeticScratchCovered": false
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1009-C1",
+        "title": "Roadside without collision",
+        "text": "Roadside assistance is active, but the policy does not include first-party collision or comprehensive damage coverage."
+      },
+      {
+        "clauseId": "RA-1009-C2",
+        "title": "Tow destination",
+        "text": "Towing is covered up to 20 miles to the nearest qualified repair facility."
+      },
+      {
+        "clauseId": "RA-1009-C3",
+        "title": "Accident damage exclusion",
+        "text": "Vehicle body damage, parts, and labor after an at-fault accident are not covered under liability-only coverage."
+      }
+    ]
+  },
+  {
+    "policyId": "RA-1010",
+    "customerName": "Sofia Rossi",
+    "vehicle": {
+      "year": 2024,
+      "make": "Mercedes-Benz",
+      "model": "C300",
+      "vinLast4": "3188"
+    },
+    "plan": "Executive Complete",
+    "effectiveDates": {
+      "start": "2026-05-01",
+      "end": "2027-04-30"
+    },
+    "roadside": {
+      "towMilesIncluded": 150,
+      "mobileRepairCovered": true,
+      "lockoutCovered": true,
+      "batteryJumpCovered": true,
+      "fuelDeliveryCovered": true,
+      "taxiOrRentalCovered": true
+    },
+    "accidentCoverage": {
+      "collisionDeductibleUsd": 0,
+      "glassDeductibleUsd": 0,
+      "tireReplacementCovered": true,
+      "cosmeticScratchCovered": true
+    },
+    "keyClauses": [
+      {
+        "clauseId": "RA-1010-C1",
+        "title": "Concierge dispatch",
+        "text": "The carrier may dispatch towing, taxi, or rental support immediately after a covered disablement without waiting for final repair estimate approval."
+      },
+      {
+        "clauseId": "RA-1010-C2",
+        "title": "Zero deductible physical damage",
+        "text": "Covered collision and comprehensive losses have no deductible for the listed vehicle."
+      },
+      {
+        "clauseId": "RA-1010-C3",
+        "title": "Premium road hazard",
+        "text": "Tire, wheel, glass, and cosmetic body damage are covered when caused by sudden road hazard or collision."
+      }
+    ]
+  }
+]
