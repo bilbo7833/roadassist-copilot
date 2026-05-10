@@ -37,10 +37,15 @@ export function useOrchestrator() {
         messageStartedRef.current = false;
     }, [state.customer?.id]);
 
-    // -- damage-assessed → coverage-check
+    // -- damage-assessed AND intake-complete → coverage-check.
+    // Damage may run earlier (in parallel with the call) since photos are
+    // valid mid-intake input, but coverage must wait until the voice agent
+    // has finished gathering — per the challenge spec ("after voice agent
+    // conversation, AI agent takes information…").
     useEffect(() => {
         if (
             state.damage &&
+            state.intakeComplete &&
             !state.coverage &&
             !coverageStartedRef.current &&
             state.customer
@@ -61,7 +66,7 @@ export function useOrchestrator() {
             })();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [state.damage, state.coverage]);
+    }, [state.damage, state.coverage, state.intakeComplete]);
 
     // -- coverage-decided (covered) → next-best-action
     useEffect(() => {
@@ -92,7 +97,10 @@ export function useOrchestrator() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.coverage]);
 
-    // -- dispatch approved → draft-message
+    // -- dispatch approved → draft-message → auto-send-sms.
+    // Once the human approves dispatch, the AI drafts the customer SMS and
+    // sends it immediately. The "send" step is no longer a separate human
+    // gate — approval implies authorization to notify the customer.
     useEffect(() => {
         if (!state.approvedDispatch || messageStartedRef.current) return;
         messageStartedRef.current = true;
@@ -108,8 +116,18 @@ export function useOrchestrator() {
                         dispatchType: candidate.dispatchType,
                         etaMin: candidate.etaMin,
                     },
+                    damage: state.damage!,
                 });
                 dispatch({ type: "MESSAGE_DRAFTED", body: draft.body });
+                dispatch({
+                    type: "SMS_SENT",
+                    sms: {
+                        id: `sms-${Date.now()}`,
+                        timestamp: new Date().toISOString(),
+                        from: "carrier",
+                        body: draft.body.trim(),
+                    },
+                });
             } catch (e) {
                 console.error("[orchestrator] draft failed:", e);
             }

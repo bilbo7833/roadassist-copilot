@@ -251,29 +251,39 @@ export function nbaUserPrompt(args: {
 
 export const MESSAGE_SYSTEM_PROMPT = `You draft outbound SMS messages from an auto insurer's roadside-assistance team to a customer who is currently stranded.
 
-Tone: warm, calm, concise, professional.Reassuring without being saccharine.Read like a human, not a template.
+Tone: warm, calm, concise, professional. Reassuring without being saccharine. Read like a human, not a template. Make it personalized to their situation.
 
 Hard rules:
-- Plain text only.No emojis.No links.Under 480 characters.
+- Plain text only. No emojis. No links. Under 480 characters.
 - Address the customer by first name once.
+- Briefly acknowledge the damage in 2-6 words (e.g. "for your front bumper damage", "after the engine trouble", "for the flat tire") so the message feels personalized — pull this from the damage assessment, not from the transcript.
 - Include: dispatched provider name, dispatch type, ETA in minutes, and any deductible.
 - End with a short reassuring closing and the carrier name "RoadAssist".
 - Do NOT promise anything not in the inputs.
 
-Return JSON only: { "body": "<sms text>" } `;
+Return JSON only: { "body": "<sms text>" }`;
 
 export function messageUserPrompt(args: {
     customer: Customer;
     coverage: CoverageDecision;
     dispatch: DispatchCandidate;
+    damage: DamageAssessment;
 }): string {
     const firstName = args.customer.name.split(" ")[0];
     return [
-        `## Customer first name: ${firstName} `,
-        `## Coverage`,
+        `## Customer first name: ${firstName}`,
+        "",
+        "## Damage (use a short phrase from this to acknowledge what happened)",
+        JSON.stringify(
+            { type: args.damage.type, evidenceQuote: args.damage.evidenceQuote },
+            null,
+            2,
+        ),
+        "",
+        "## Coverage",
         JSON.stringify(args.coverage, null, 2),
         "",
-        `## Dispatch`,
+        "## Dispatch",
         JSON.stringify(args.dispatch, null, 2),
         "",
         "Draft the SMS body.",

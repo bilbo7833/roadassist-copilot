@@ -74,19 +74,6 @@ export function CockpitPanel() {
         dispatch({ type: "DISPATCH_APPROVED", candidate });
     }
 
-    function sendSms() {
-        if (!state.draftMessage.trim()) return;
-        dispatch({
-            type: "SMS_SENT",
-            sms: {
-                id: `sms-${Date.now()}`,
-                timestamp: new Date().toISOString(),
-                from: "carrier",
-                body: state.draftMessage.trim(),
-            },
-        });
-    }
-
     if (!customer) {
         return (
             <div className="flex h-full items-center justify-center p-6 text-sm text-zinc-500">
@@ -96,52 +83,37 @@ export function CockpitPanel() {
     }
 
     return (
-        <div className="flex h-full min-h-0 flex-col gap-3 p-4">
+        // Outer column is the only scroller. On short viewports the whole
+        // cockpit scrolls; on tall viewports nothing scrolls at all. The
+        // audit card has its own internal scroll, capped via max-h, so a
+        // long log doesn't push other cards off-screen.
+        <div className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto p-4">
             {error && (
                 <div className="shrink-0 rounded border border-red-200 bg-red-50 p-2 text-xs text-red-700">
                     {error}
                 </div>
             )}
 
-            {/* Intake summary — editable textarea */}
-            <Card
-                title="Intake"
-                subtitle={
-                    state.intakeComplete
-                        ? "complete"
-                        : Object.values(intake).some(Boolean)
-                            ? "in progress"
-                            : "awaiting voice intake"
-                }
-                action={
-                    notesEdited ? (
-                        <button
-                            onClick={() => {
-                                setNotesEdited(false);
-                                setNotes(autoSummary);
-                            }}
-                            className="rounded border border-zinc-300 px-2 py-0.5 text-xs text-zinc-600 hover:bg-zinc-50"
-                        >
-                            Reset to AI extraction
-                        </button>
-                    ) : null
-                }
-            >
-                <textarea
-                    value={notes}
-                    onChange={(e) => {
-                        setNotes(e.target.value);
-                        setNotesEdited(true);
-                    }}
-                    rows={6}
-                    placeholder="Voice intake will fill this in. You can edit it before the AI runs coverage."
-                    className="w-full resize-none rounded border border-zinc-200 bg-white p-2 font-mono text-xs text-zinc-800"
-                />
-            </Card>
-
-            {/* Single AI decisioning card with sections that light up in order. */}
-            <Card title="AI decisioning" subtitle="auto-running…">
+            {/* All five steps live in a single card so they read as one
+                connected pipeline. Steps light up in order as the
+                orchestrator advances. */}
+            <section className="shrink-0 rounded-md border border-zinc-200 bg-white p-3 shadow-sm">
                 <div className="space-y-3">
+                    <IntakeSection
+                        intake={intake}
+                        intakeComplete={state.intakeComplete}
+                        notes={notes}
+                        notesEdited={notesEdited}
+                        onChange={(v) => {
+                            setNotes(v);
+                            setNotesEdited(true);
+                        }}
+                        onReset={() => {
+                            setNotesEdited(false);
+                            setNotes(autoSummary);
+                        }}
+                    />
+                    <Divider />
                     <DamageSection damage={damage} />
                     <Divider />
                     <CoverageSection coverage={coverage} ready={Boolean(damage)} />
@@ -156,22 +128,18 @@ export function CockpitPanel() {
                     <MessageSection
                         draft={state.draftMessage}
                         sent={state.smsMessages.length > 0}
-                        onChange={(body) =>
-                            dispatch({ type: "MESSAGE_EDITED", body })
-                        }
-                        onSend={sendSms}
                         ready={Boolean(state.approvedDispatch)}
                     />
                 </div>
-            </Card>
+            </section>
 
-            {/* Audit log — flex-1, internal scroll */}
+            {/* Audit log — its own card, capped internal scroll */}
             <AuditCard />
         </div>
     );
 }
 
-// -- Sections of the AI decisioning card -------------------------------------
+// -- Sections of the unified pipeline card -----------------------------------
 
 function StepHeader({
     step,
@@ -201,11 +169,70 @@ function StepHeader({
     );
 }
 
+function IntakeSection({
+    intake,
+    intakeComplete,
+    notes,
+    notesEdited,
+    onChange,
+    onReset,
+}: {
+    intake: IntakeData;
+    intakeComplete: boolean;
+    notes: string;
+    notesEdited: boolean;
+    onChange: (v: string) => void;
+    onReset: () => void;
+}) {
+    const status: "waiting" | "running" | "done" | "fail" = intakeComplete
+        ? "done"
+        : Object.values(intake).some(Boolean)
+            ? "running"
+            : "waiting";
+    return (
+        <section>
+            <div className="flex items-center gap-2">
+                <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${status === "done"
+                        ? "bg-emerald-500"
+                        : status === "running"
+                            ? "bg-amber-400 animate-pulse"
+                            : "bg-zinc-300"
+                        }`}
+                >
+                    1
+                </span>
+                <h3 className="text-sm font-semibold text-zinc-800">Information intake</h3>
+                {notesEdited && (
+                    <button
+                        onClick={onReset}
+                        className="ml-2 rounded border border-zinc-300 px-2 py-0.5 text-[11px] text-zinc-600 hover:bg-zinc-50"
+                    >
+                        Reset to AI extraction
+                    </button>
+                )}
+                <span className="ml-auto text-[10px] uppercase tracking-wide text-zinc-400">
+                    {status === "done" ? "complete" : status === "running" ? "in progress" : "awaiting call"}
+                </span>
+            </div>
+            <div className="mt-1 pl-7">
+                <textarea
+                    value={notes}
+                    onChange={(e) => onChange(e.target.value)}
+                    rows={5}
+                    placeholder="Voice intake will fill this in. You can edit it before the AI runs coverage."
+                    className="w-full resize-none rounded border border-zinc-200 bg-white p-2 font-mono text-xs text-zinc-800"
+                />
+            </div>
+        </section>
+    );
+}
+
 function DamageSection({ damage }: { damage: DamageAssessment | null }) {
     const status = damage ? "done" : "waiting";
     return (
         <section>
-            <StepHeader step={1} title="Damage assessment" state={status} />
+            <StepHeader step={2} title="Damage assessment" state={status} />
             <div className="mt-1 pl-7 text-sm">
                 {!damage && (
                     <p className="text-xs text-zinc-500">Will run when the customer uploads a photo.</p>
@@ -240,7 +267,7 @@ function CoverageSection({
         : ready ? "running" : "waiting";
     return (
         <section>
-            <StepHeader step={2} title="Coverage decision" state={status} />
+            <StepHeader step={3} title="Coverage decision" state={status} />
             <div className="mt-1 pl-7 text-sm">
                 {!ready && (
                     <p className="text-xs text-zinc-500">Waits for the damage assessment.</p>
@@ -298,7 +325,7 @@ function DispatchSection({
         : ready ? "running" : "waiting";
     return (
         <section>
-            <StepHeader step={3} title="Dispatch" state={status} />
+            <StepHeader step={4} title="Dispatch" state={status} />
             <div className="mt-1 pl-7 text-sm">
                 {!ready && (
                     <p className="text-xs text-zinc-500">Waits for a covered claim.</p>
@@ -345,51 +372,36 @@ function DispatchSection({
 function MessageSection({
     draft,
     sent,
-    onChange,
-    onSend,
     ready,
 }: {
     draft: string;
     sent: boolean;
-    onChange: (b: string) => void;
-    onSend: () => void;
     ready: boolean;
 }) {
     const status: "waiting" | "running" | "done" | "fail" = sent
         ? "done"
-        : draft
+        : ready
             ? "running"
-            : ready ? "running" : "waiting";
+            : "waiting";
     return (
         <section>
-            <StepHeader step={4} title="Customer SMS" state={status} />
+            <StepHeader step={5} title="Customer SMS" state={status} />
             <div className="mt-1 pl-7">
                 {!ready && (
                     <p className="text-xs text-zinc-500">Waits for dispatch approval.</p>
                 )}
                 {ready && !draft && (
-                    <p className="text-xs text-zinc-500">Drafting the message…</p>
+                    <p className="text-xs text-zinc-500">Drafting and sending the message…</p>
                 )}
                 {draft && (
-                    <>
-                        <textarea
-                            value={draft}
-                            onChange={(e) => onChange(e.target.value)}
-                            rows={3}
-                            disabled={sent}
-                            className="w-full resize-none rounded border border-zinc-300 bg-white p-2 text-sm disabled:bg-zinc-50"
-                        />
-                        <div className="mt-2 flex items-center justify-between">
-                            <span className="text-xs text-zinc-500">{draft.length} chars</span>
-                            <button
-                                disabled={sent}
-                                onClick={onSend}
-                                className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {sent ? "✓ Sent" : "Send SMS"}
-                            </button>
-                        </div>
-                    </>
+                    <div className="rounded border border-zinc-200 bg-zinc-50 p-2 text-sm text-zinc-800">
+                        {draft}
+                    </div>
+                )}
+                {sent && (
+                    <p className="mt-1 text-[11px] text-emerald-700">
+                        ✓ Sent to the customer.
+                    </p>
                 )}
             </div>
         </section>
@@ -401,14 +413,16 @@ function MessageSection({
 function AuditCard() {
     const { state } = useCase();
     return (
-        <section className="flex min-h-0 flex-1 flex-col rounded-md border border-zinc-200 bg-white p-3 shadow-sm">
+        <section className="flex shrink-0 flex-col rounded-md border border-zinc-200 bg-white p-3 shadow-sm">
             <header className="mb-2 flex shrink-0 items-center justify-between">
                 <div>
                     <h2 className="text-sm font-semibold text-zinc-800">Audit log</h2>
                     <p className="text-xs text-zinc-500">{state.audit.length} events</p>
                 </div>
             </header>
-            <div className="min-h-0 flex-1 overflow-y-auto rounded border border-zinc-100 bg-zinc-50 p-2">
+            {/* Cap the inner list so a long audit log can't push the whole
+                cockpit out of view — beyond ~64 lines it scrolls internally. */}
+            <div className="max-h-72 min-h-0 overflow-y-auto rounded border border-zinc-100 bg-zinc-50 p-2">
                 <ul className="space-y-1 text-xs">
                     {state.audit.length === 0 && (
                         <li className="text-zinc-400">No events yet.</li>
@@ -429,31 +443,6 @@ function AuditCard() {
 }
 
 // -- Small presentational helpers --------------------------------------------
-
-function Card({
-    title,
-    subtitle,
-    action,
-    children,
-}: {
-    title: string;
-    subtitle?: string;
-    action?: React.ReactNode;
-    children: React.ReactNode;
-}) {
-    return (
-        <section className="shrink-0 rounded-md border border-zinc-200 bg-white p-3 shadow-sm">
-            <header className="mb-2 flex items-center justify-between">
-                <div>
-                    <h2 className="text-sm font-semibold text-zinc-800">{title}</h2>
-                    {subtitle && <p className="text-xs text-zinc-500">{subtitle}</p>}
-                </div>
-                {action}
-            </header>
-            {children}
-        </section>
-    );
-}
 
 function Divider() {
     return <div className="h-px bg-zinc-100" />;

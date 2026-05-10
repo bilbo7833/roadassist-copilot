@@ -21,6 +21,7 @@ export async function POST(req: Request) {
                     customer: body.customer,
                     coverage: body.coverage,
                     dispatch: body.dispatch,
+                    damage: body.damage,
                 }),
             });
             return NextResponse.json(MessageDraftSchema.parse(JSON.parse(raw)));
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
             console.warn("[message] draft failed, using template:", err);
             const firstName = String(body.customer?.name ?? "").split(" ")[0] || "there";
             const d = body.dispatch ?? {};
+            const damageType = body.damage?.type ? ` after the ${body.damage.type}` : "";
             const ded =
                 body.coverage?.deductibleUsd != null
                     ? ` Deductible: $${body.coverage.deductibleUsd}.`
@@ -35,7 +37,7 @@ export async function POST(req: Request) {
             return NextResponse.json({
                 body:
                     `Hi ${firstName}, this is RoadAssist. We've dispatched ${d.providerName ?? "a provider"} ` +
-                    `(${d.dispatchType ?? "service"}) to your location. ETA about ${d.etaMin ?? "?"} minutes.` +
+                    `(${d.dispatchType ?? "service"})${damageType}. ETA about ${d.etaMin ?? "?"} minutes.` +
                     `${ded} You're covered. We'll keep you posted. — RoadAssist`,
             });
         }

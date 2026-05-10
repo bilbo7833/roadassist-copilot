@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // Hide the floating "N" dev-mode indicator so it doesn't cover the SMS
+  // pane in the bottom-left of the demo. Production builds never show it.
+  devIndicators: false,
 };
 
 export default nextConfig;

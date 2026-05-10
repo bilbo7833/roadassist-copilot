@@ -64,6 +64,7 @@ export const api = {
         customer: Customer;
         coverage: CoverageDecision;
         dispatch: { providerName: string; dispatchType: string; etaMin: number };
+        damage: DamageAssessment;
     }) {
         return post<{ body: string }>("/api/draft-message", args);
     },
