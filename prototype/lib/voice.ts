@@ -70,9 +70,13 @@ function fallbackBrowserSpeak(text: string) {
 // playback starts as soon as the first chunks arrive — ~200-400ms instead of
 // waiting for the whole file. Resolves when playback finishes; rejects on
 // stream / playback errors.
+//
+// Logs timing markers to the browser console under [tts] so we can see if
+// the chain is actually streaming (look for "first-byte → first-audio").
 async function playStreamedMp3(
     audio: HTMLAudioElement,
     stream: ReadableStream<Uint8Array>,
+    startedAt: number,
 ): Promise<void> {
     const mediaSource = new MediaSource();
     audio.src = URL.createObjectURL(mediaSource);
@@ -97,8 +101,14 @@ async function playStreamedMp3(
                     return;
                 }
 
-                audio.onended = () => finish();
+                audio.onended = () => {
+                    console.log(`[tts] ended      +${Date.now() - startedAt}ms`);
+                    finish();
+                };
                 audio.onerror = () => finish(new Error("audio playback failed"));
+                audio.onplaying = () => {
+                    console.log(`[tts] first-audio +${Date.now() - startedAt}ms`);
+                };
 
                 // Helper: append a chunk and wait for the buffer to be ready.
                 const append = (chunk: Uint8Array) =>
@@ -121,22 +131,35 @@ async function playStreamedMp3(
                         sourceBuffer.appendBuffer(chunk.slice().buffer as ArrayBuffer);
                     });
 
+                // Fire play() up front so the audio element can start the
+                // moment it has enough data — don't wait for the first
+                // updateend to come back before kicking off playback.
+                audio.play().catch((e) => finish(e));
+
                 const reader = stream.getReader();
-                let started = false;
+                let firstByteLogged = false;
+                let totalBytes = 0;
+                let chunkCount = 0;
                 try {
                     // eslint-disable-next-line no-constant-condition
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
                         if (value && value.byteLength > 0) {
-                            await append(value);
-                            // Start playback as soon as we have something.
-                            if (!started) {
-                                started = true;
-                                audio.play().catch((e) => finish(e));
+                            if (!firstByteLogged) {
+                                firstByteLogged = true;
+                                console.log(
+                                    `[tts] first-byte +${Date.now() - startedAt}ms (${value.byteLength}B)`,
+                                );
                             }
+                            totalBytes += value.byteLength;
+                            chunkCount += 1;
+                            await append(value);
                         }
                     }
+                    console.log(
+                        `[tts] stream-end +${Date.now() - startedAt}ms total=${totalBytes}B chunks=${chunkCount}`,
+                    );
                     if (mediaSource.readyState === "open") {
                         mediaSource.endOfStream();
                     }
@@ -206,12 +229,16 @@ export function useVoice() {
         if (!next) return;
         playingRef.current = true;
 
+        const startedAt = Date.now();
+        console.log(`[tts] start      +0ms text=${JSON.stringify(next.slice(0, 60))}…`);
+
         try {
             const res = await fetch("/api/tts", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
                 body: JSON.stringify({ text: next }),
             });
+            console.log(`[tts] headers   +${Date.now() - startedAt}ms status=${res.status}`);
             if (!res.ok || !res.body) throw new Error(`tts ${res.status}`);
 
             const audio = audioRef.current;
@@ -226,8 +253,9 @@ export function useVoice() {
                 MediaSource.isTypeSupported("audio/mpeg");
 
             if (canStream) {
-                await playStreamedMp3(audio, res.body);
+                await playStreamedMp3(audio, res.body, startedAt);
             } else {
+                console.log("[tts] streaming unavailable — falling back to blob");
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 currentObjectUrlRef.current = url;

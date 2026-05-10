@@ -6,22 +6,23 @@
 //   1. Voice agent gathers info → call ends.
 //   2. AI runs coverage check (silent backend step).
 //   3. If covered, AI runs next-best-action (silent backend step).
-//   4. Human approves dispatch (the only manual gate).
-//   5. AI drafts SMS → human approves → SMS sent.
-////
+//   4. Human approves dispatch (the only manual gate, covered branch only).
+//   5. AI drafts SMS → SMS auto-sent.
+//
 // Trigger graph:
 //   damage-assessed                  →  coverage-check
 //   coverage-decided (covered=true)  →  next-best-action
-//   coverage-decided (covered=false) →  STOP (cockpit shows "needs review")
-//   HUMAN: Approve dispatch          →  draft-message
-//   HUMAN: Send SMS                  →  end
+//   coverage-decided (covered=false) →  draft "not covered" SMS (no auto-send)
+//                                       → HUMAN: click Send to notify customer
+//                                       → specialist follow-up off-screen
+//   HUMAN: Approve dispatch          →  draft + auto-send "dispatched" SMS
 //
 // Each transition is guarded by a useRef so it fires once per case.
 
 import { useEffect, useRef } from "react";
 import { useCase } from "@/lib/case";
 import { api } from "@/lib/api";
-import type { DispatchCandidate, IntakeData } from "@/lib/types";
+import type { IntakeData } from "@/lib/types";
 
 export function useOrchestrator() {
     const { state, dispatch } = useCase();
@@ -97,41 +98,59 @@ export function useOrchestrator() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.coverage]);
 
-    // -- dispatch approved → draft-message → auto-send-sms.
-    // Once the human approves dispatch, the AI drafts the customer SMS and
-    // sends it immediately. The "send" step is no longer a separate human
-    // gate — approval implies authorization to notify the customer.
+    // -- Customer SMS — drafted automatically; sent only with human approval.
+    //
+    // Two trigger conditions for drafting, mutually exclusive within a case:
+    //   - Covered:    fires when the human approves a dispatch candidate.
+    //                 (Approval implies authorization to notify the customer
+    //                 → SMS is auto-sent in this branch.)
+    //   - Not covered: fires immediately when coverage lands as not-covered
+    //                 (or low-confidence / human-review). Draft only — the
+    //                 human must click Send. The agent gets a chance to
+    //                 review what we tell the customer before the bad-news
+    //                 SMS goes out.
     useEffect(() => {
-        if (!state.approvedDispatch || messageStartedRef.current) return;
-        messageStartedRef.current = true;
+        if (messageStartedRef.current) return;
+        if (!state.coverage || !state.customer || !state.damage) return;
 
-        const candidate: DispatchCandidate = state.approvedDispatch;
+        const covered = state.coverage.covered && !state.coverage.needsHumanReview;
+        // Wait for the human to approve a dispatch on the covered branch.
+        if (covered && !state.approvedDispatch) return;
+
+        messageStartedRef.current = true;
+        const candidate = state.approvedDispatch;
+
         (async () => {
             try {
                 const draft = await api.draftMessage({
                     customer: state.customer!,
                     coverage: state.coverage!,
-                    dispatch: {
-                        providerName: candidate.providerName,
-                        dispatchType: candidate.dispatchType,
-                        etaMin: candidate.etaMin,
-                    },
                     damage: state.damage!,
+                    dispatch: candidate
+                        ? {
+                            providerName: candidate.providerName,
+                            dispatchType: candidate.dispatchType,
+                            etaMin: candidate.etaMin,
+                        }
+                        : undefined,
                 });
                 dispatch({ type: "MESSAGE_DRAFTED", body: draft.body });
-                dispatch({
-                    type: "SMS_SENT",
-                    sms: {
-                        id: `sms-${Date.now()}`,
-                        timestamp: new Date().toISOString(),
-                        from: "carrier",
-                        body: draft.body.trim(),
-                    },
-                });
+                // Auto-send on the covered branch only — see comment above.
+                if (covered) {
+                    dispatch({
+                        type: "SMS_SENT",
+                        sms: {
+                            id: `sms-${Date.now()}`,
+                            timestamp: new Date().toISOString(),
+                            from: "carrier",
+                            body: draft.body.trim(),
+                        },
+                    });
+                }
             } catch (e) {
                 console.error("[orchestrator] draft failed:", e);
             }
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [state.approvedDispatch]);
+    }, [state.coverage, state.approvedDispatch]);
 }

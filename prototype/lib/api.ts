@@ -63,8 +63,9 @@ export const api = {
     draftMessage(args: {
         customer: Customer;
         coverage: CoverageDecision;
-        dispatch: { providerName: string; dispatchType: string; etaMin: number };
         damage: DamageAssessment;
+        // Present on the COVERED branch only.
+        dispatch?: { providerName: string; dispatchType: string; etaMin: number };
     }) {
         return post<{ body: string }>("/api/draft-message", args);
     },

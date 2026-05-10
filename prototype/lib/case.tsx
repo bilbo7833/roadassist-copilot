@@ -71,20 +71,15 @@ function reducer(state: CaseState, action: Action): CaseState {
     switch (action.type) {
         case "SELECT_CUSTOMER": {
             const c = action.customer;
-            const vehicle = `${c.vehicle.year} ${c.vehicle.make} ${c.vehicle.model}`;
-            // We DON'T pre-fill the cockpit intake or push a system note here.
-            // The agent on the call is supposed to ask Q1 (name, policy,
-            // registration); the demo-er can simulate answering Q1 with the
-            // "Provide my details" button which dispatches PROVIDE_DETAILS.
+            // Open the case in the audit log without leaking the customer's
+            // identity or location into the first event — the agent should
+            // appear to learn those during the call. The customer object
+            // itself is still set on state so the rest of the pipeline works.
             return {
                 ...initialState,
                 customer: c,
                 status: "intake",
-                audit: audit(
-                    initialState,
-                    "case.opened",
-                    `Case opened for ${c.name} (${vehicle}, policy ${c.policyId}, plate ${c.vehicle.registration}).`,
-                ),
+                audit: audit(initialState, "case.opened", "New session started."),
             };
         }
 

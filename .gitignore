@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node / Next.js — these also exist inside prototype/ but pinning them here
+# guards against accidental commits if someone runs npm at the wrong level.
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# Env files (real keys must never be committed). The committed template lives
+# at prototype/.env.example and is whitelisted by prototype/.gitignore.
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel

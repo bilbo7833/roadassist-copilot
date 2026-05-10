@@ -121,6 +121,7 @@ export function CockpitPanel() {
                     <DispatchSection
                         plan={plan}
                         ready={Boolean(coverage?.covered)}
+                        skipped={Boolean(coverage && !coverage.covered)}
                         approvedId={state.approvedDispatch?.providerId}
                         onApprove={approveDispatch}
                     />
@@ -128,7 +129,25 @@ export function CockpitPanel() {
                     <MessageSection
                         draft={state.draftMessage}
                         sent={state.smsMessages.length > 0}
-                        ready={Boolean(state.approvedDispatch)}
+                        // The SMS step kicks off when EITHER the human approves
+                        // a dispatch (covered) OR coverage lands as not-covered
+                        // (the orchestrator drafts a specialist-handoff SMS).
+                        ready={
+                            Boolean(state.approvedDispatch) ||
+                            Boolean(coverage && !coverage.covered)
+                        }
+                        onSend={() => {
+                            if (!state.draftMessage.trim()) return;
+                            dispatch({
+                                type: "SMS_SENT",
+                                sms: {
+                                    id: `sms-${Date.now()}`,
+                                    timestamp: new Date().toISOString(),
+                                    from: "carrier",
+                                    body: state.draftMessage.trim(),
+                                },
+                            });
+                        }}
                     />
                 </div>
             </section>
@@ -312,25 +331,35 @@ function CoverageSection({
 function DispatchSection({
     plan,
     ready,
+    skipped,
     approvedId,
     onApprove,
 }: {
     plan: DispatchPlan | null;
     ready: boolean;
+    skipped: boolean;
     approvedId?: string;
     onApprove: (c: DispatchCandidate) => void;
 }) {
-    const status: "waiting" | "running" | "done" | "fail" = plan
-        ? approvedId ? "done" : "running"
-        : ready ? "running" : "waiting";
+    const status: "waiting" | "running" | "done" | "fail" = skipped
+        ? "fail"
+        : plan
+            ? approvedId ? "done" : "running"
+            : ready ? "running" : "waiting";
     return (
         <section>
             <StepHeader step={4} title="Dispatch" state={status} />
             <div className="mt-1 pl-7 text-sm">
-                {!ready && (
+                {skipped && (
+                    <p className="text-xs text-zinc-600">
+                        Skipped — case is not covered. A specialist will follow up;
+                        the customer is being notified by SMS now.
+                    </p>
+                )}
+                {!skipped && !ready && (
                     <p className="text-xs text-zinc-500">Waits for a covered claim.</p>
                 )}
-                {ready && !plan && (
+                {!skipped && ready && !plan && (
                     <p className="text-xs text-zinc-500">Locating the closest provider…</p>
                 )}
                 {plan && (
@@ -373,10 +402,12 @@ function MessageSection({
     draft,
     sent,
     ready,
+    onSend,
 }: {
     draft: string;
     sent: boolean;
     ready: boolean;
+    onSend: () => void;
 }) {
     const status: "waiting" | "running" | "done" | "fail" = sent
         ? "done"
@@ -388,14 +419,24 @@ function MessageSection({
             <StepHeader step={5} title="Customer SMS" state={status} />
             <div className="mt-1 pl-7">
                 {!ready && (
-                    <p className="text-xs text-zinc-500">Waits for dispatch approval.</p>
+                    <p className="text-xs text-zinc-500">Waits for dispatch approval or coverage decision.</p>
                 )}
                 {ready && !draft && (
-                    <p className="text-xs text-zinc-500">Drafting and sending the message…</p>
+                    <p className="text-xs text-zinc-500">Drafting the message…</p>
                 )}
                 {draft && (
                     <div className="rounded border border-zinc-200 bg-zinc-50 p-2 text-sm text-zinc-800">
                         {draft}
+                    </div>
+                )}
+                {draft && !sent && (
+                    <div className="mt-2 flex justify-end">
+                        <button
+                            onClick={onSend}
+                            className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                        >
+                            Send SMS
+                        </button>
                     </div>
                 )}
                 {sent && (
