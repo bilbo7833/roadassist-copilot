@@ -18,6 +18,7 @@ export function CustomerPanel() {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [detailsProvided, setDetailsProvided] = useState(false);
+    const [processingPhotos, setProcessingPhotos] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const transcriptEndRef = useRef<HTMLDivElement>(null);
 
@@ -28,10 +29,10 @@ export function CustomerPanel() {
         }
     }, []);
 
-    // Auto-scroll transcript to bottom on new turns.
+    // Auto-scroll transcript to bottom on new turns or when thinking starts.
     useEffect(() => {
         transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [state.transcript.length]);
+    }, [state.transcript.length, busy]);
 
     const customer = state.customer;
 
@@ -126,6 +127,7 @@ export function CustomerPanel() {
             source: "agent",
         });
         setBusy(true);
+        setProcessingPhotos(true);
         setError(null);
         try {
             const transcriptSnippet = state.transcript
@@ -143,6 +145,7 @@ export function CustomerPanel() {
             setError(e instanceof Error ? e.message : "damage-assess failed");
         } finally {
             setBusy(false);
+            setProcessingPhotos(false);
         }
     }
 
@@ -268,6 +271,16 @@ export function CustomerPanel() {
                                 {voice.interim}…
                             </li>
                         )}
+                        {busy && (
+                            <li className="flex items-center gap-2 text-emerald-700">
+                                <span className="font-semibold">Agent:</span>
+                                <span className="inline-flex items-center gap-1">
+                                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500 [animation-delay:0ms]" />
+                                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500 [animation-delay:150ms]" />
+                                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500 [animation-delay:300ms]" />
+                                </span>
+                            </li>
+                        )}
                         <div ref={transcriptEndRef} />
                     </ul>
                 </div>
@@ -280,14 +293,21 @@ export function CustomerPanel() {
                         <p className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">
                             Damage photos ({state.damageImageUrls.length}/{MAX_PHOTOS})
                         </p>
-                        {state.damageImageUrls.length > 0 ? (
+                        {processingPhotos ? (
+                            <div className="mt-0.5">
+                                <p className="text-xs text-zinc-600">Uploading…</p>
+                                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-zinc-200">
+                                    <div className="h-full animate-pulse rounded-full bg-emerald-500" style={{ width: "70%" }} />
+                                </div>
+                            </div>
+                        ) : state.damageImageUrls.length > 0 ? (
                             <p className="truncate text-xs text-zinc-700">
                                 {state.damageImageUrls.length === 1
-                                    ? "1 photo attached — AI-2 has assessed it."
-                                    : `${state.damageImageUrls.length} photos attached — AI-2 reasoned across all of them.`}
+                                    ? "1 photo uploaded."
+                                    : `${state.damageImageUrls.length} photos uploaded.`}
                             </p>
                         ) : (
-                            <p className="text-xs text-zinc-400">Optional — attach 1 to {MAX_PHOTOS} photos to run damage AI.</p>
+                            <p className="text-xs text-zinc-400">Upload 1–{MAX_PHOTOS} photos of the damage.</p>
                         )}
                     </div>
                     {state.damageImageUrls.length > 0 && (
