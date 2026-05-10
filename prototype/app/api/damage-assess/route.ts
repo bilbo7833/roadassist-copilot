@@ -12,6 +12,9 @@ import { DamageAssessmentSchema } from "@/lib/schemas";
 import { DAMAGE_SYSTEM_PROMPT, damageUserPrompt } from "@/lib/prompts";
 
 export const runtime = "nodejs";
+// Vision calls (especially Gemini's) can be the slowest in the pipeline,
+// and we may run a fallback after a primary failure.
+export const maxDuration = 60;
 
 // Cap to keep token cost predictable + UI uncluttered.
 const MAX_PHOTOS = 3;

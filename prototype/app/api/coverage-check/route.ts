@@ -10,6 +10,9 @@ import { COVERAGE_SYSTEM_PROMPT, coverageUserPrompt } from "@/lib/prompts";
 import type { Policy } from "@/lib/types";
 
 export const runtime = "nodejs";
+// Allow long coverage runs — the clause-substring guard can require a retry,
+// which doubles the model time. 60s is the Hobby plan ceiling on Vercel.
+export const maxDuration = 60;
 
 const policies = policiesData as Policy[];
 const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();

@@ -8,6 +8,7 @@ import { MessageDraftSchema } from "@/lib/schemas";
 import { MESSAGE_SYSTEM_PROMPT, messageUserPrompt } from "@/lib/prompts";
 
 export const runtime = "nodejs";
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
     try {

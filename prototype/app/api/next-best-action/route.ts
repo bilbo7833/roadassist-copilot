@@ -22,6 +22,7 @@ import type {
 } from "@/lib/types";
 
 export const runtime = "nodejs";
+export const maxDuration = 30;
 
 const providers = providersData as Provider[];
 const policies = policiesData as Policy[];

@@ -17,6 +17,11 @@ export const MODELS = {
     coverage: process.env.LLM_COVERAGE_MODEL ?? "gpt-5",
     nba: process.env.LLM_NBA_MODEL ?? "gpt-5",
     message: process.env.LLM_MESSAGE_MODEL ?? "gpt-5",
+    // Voice synthesis. gpt-4o-mini-tts is the current best-quality option;
+    // it supports the modern voices (alloy, nova, sage, shimmer, etc.) and
+    // a freeform `instructions` field for tone.
+    tts: process.env.LLM_TTS_MODEL ?? "gpt-4o-mini-tts",
+    ttsVoice: process.env.LLM_TTS_VOICE ?? "nova",
 } as const;
 
 // Names of the AI agents from PRD §6 — used as a log tag so server output is
@@ -27,7 +32,8 @@ export type AgentTag =
     | "damage-fallback"
     | "coverage"
     | "nba"
-    | "message";
+    | "message"
+    | "tts";
 
 function logStart(agent: AgentTag, provider: "openai" | "gemini", model: string) {
     // ISO timestamp keeps lines greppable + sortable.
@@ -177,6 +183,40 @@ export async function geminiVisionJson(args: {
         return text;
     } catch (err) {
         logErr(args.agent, "gemini", args.model, startedAt, err);
+        throw err;
+    }
+}
+
+
+// -- TTS ----------------------------------------------------------------------
+// Returns the streaming MP3 body. The route forwards this directly to the
+// browser so playback can start while bytes are still being encoded — every
+// hop in the chain stays a stream, no buffering.
+export async function openaiTtsStream(args: {
+    text: string;
+    voice?: string;
+    instructions?: string;
+}): Promise<{ body: ReadableStream<Uint8Array>; contentType: string }> {
+    const startedAt = logStart("tts", "openai", MODELS.tts);
+    try {
+        // .create() returns a Response; we want its raw body, not the buffered
+        // bytes. Don't await blob()/arrayBuffer() — that would defeat the
+        // whole streaming path.
+        const resp = await openaiClient().audio.speech.create({
+            model: MODELS.tts,
+            voice: args.voice ?? MODELS.ttsVoice,
+            input: args.text,
+            response_format: "mp3",
+            ...(args.instructions ? { instructions: args.instructions } : {}),
+        });
+        if (!resp.body) throw new Error("openai tts: empty response body");
+        const contentType = resp.headers.get("content-type") ?? "audio/mpeg";
+        // We log "done" the moment the headers are back; the actual stream
+        // duration follows for as long as audio is still flowing.
+        logEnd("tts", "openai", MODELS.tts, startedAt, 0);
+        return { body: resp.body as ReadableStream<Uint8Array>, contentType };
+    } catch (err) {
+        logErr("tts", "openai", MODELS.tts, startedAt, err);
         throw err;
     }
 }
