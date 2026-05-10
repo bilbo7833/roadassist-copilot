@@ -1,0 +1,53 @@
+[
+    {
+        "id": "cust-maya",
+        "name": "Maya Chen",
+        "phone": "+1 (212) 555-0107",
+        "vehicle": {
+            "year": 2021,
+            "make": "Toyota",
+            "model": "RAV4 Hybrid",
+            "registration": "NY · KMC-4821"
+        },
+        "policyId": "RA-1001",
+        "currentLocation": {
+            "lat": 40.6962,
+            "lng": -73.9712,
+            "label": "Atlantic Ave & Flatbush Ave, Brooklyn, NY"
+        }
+    },
+    {
+        "id": "cust-elena",
+        "name": "Elena Alvarez",
+        "phone": "+1 (646) 555-0182",
+        "vehicle": {
+            "year": 2023,
+            "make": "Tesla",
+            "model": "Model 3",
+            "registration": "NY · ELE-3320"
+        },
+        "policyId": "RA-1003",
+        "currentLocation": {
+            "lat": 40.728,
+            "lng": -73.946,
+            "label": "Jackson Ave & 44th Dr, Long Island City, Queens, NY"
+        }
+    },
+    {
+        "id": "cust-lucas",
+        "name": "Lucas Schneider",
+        "phone": "+1 (917) 555-0144",
+        "vehicle": {
+            "year": 2016,
+            "make": "Volkswagen",
+            "model": "Golf",
+            "registration": "NJ · LSC-9417"
+        },
+        "policyId": "RA-1009",
+        "currentLocation": {
+            "lat": 40.7115,
+            "lng": -73.9579,
+            "label": "Bedford Ave & N 7th St, Williamsburg, Brooklyn, NY"
+        }
+    }
+]

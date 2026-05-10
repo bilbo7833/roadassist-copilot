@@ -1,0 +1,122 @@
+[
+    {
+        "id": "prov-fortlee",
+        "name": "Fort Lee Auto Care",
+        "location": {
+            "lat": 40.852,
+            "lng": -73.97,
+            "label": "Fort Lee, NJ — Lemoine Ave"
+        },
+        "capabilities": [
+            "tow",
+            "mobile-repair"
+        ],
+        "hours": "24/7",
+        "brandWhitelist": [
+            "Toyota",
+            "Honda",
+            "Ford",
+            "Mazda",
+            "Subaru",
+            "Volkswagen",
+            "Hyundai",
+            "Tesla",
+            "BMW",
+            "Mercedes-Benz"
+        ]
+    },
+    {
+        "id": "prov-huntspoint",
+        "name": "Hunts Point Towing",
+        "location": {
+            "lat": 40.812,
+            "lng": -73.892,
+            "label": "Hunts Point, Bronx"
+        },
+        "capabilities": [
+            "tow"
+        ],
+        "hours": "24/7"
+    },
+    {
+        "id": "prov-yonkers",
+        "name": "Yonkers Mobile Mechanics",
+        "location": {
+            "lat": 40.93,
+            "lng": -73.9,
+            "label": "Yonkers, NY — South Broadway"
+        },
+        "capabilities": [
+            "mobile-repair",
+            "tow"
+        ],
+        "hours": "07:00-23:00"
+    },
+    {
+        "id": "prov-uppermanhattan",
+        "name": "Washington Heights Auto",
+        "location": {
+            "lat": 40.84,
+            "lng": -73.94,
+            "label": "Washington Heights, Manhattan — Broadway & W 181st"
+        },
+        "capabilities": [
+            "tow",
+            "mobile-repair"
+        ],
+        "hours": "24/7"
+    },
+    {
+        "id": "prov-lic",
+        "name": "LIC Roadside",
+        "location": {
+            "lat": 40.745,
+            "lng": -73.948,
+            "label": "Long Island City, Queens — Northern Blvd"
+        },
+        "capabilities": [
+            "tow",
+            "mobile-repair"
+        ],
+        "hours": "24/7"
+    },
+    {
+        "id": "prov-williamsburg",
+        "name": "Williamsburg Mobile Repair",
+        "location": {
+            "lat": 40.715,
+            "lng": -73.96,
+            "label": "Williamsburg, Brooklyn — Metropolitan Ave"
+        },
+        "capabilities": [
+            "mobile-repair"
+        ],
+        "hours": "06:00-22:00"
+    },
+    {
+        "id": "prov-taxi-nyc",
+        "name": "City Wide Black Car",
+        "location": {
+            "lat": 40.758,
+            "lng": -73.985,
+            "label": "Midtown Manhattan dispatch"
+        },
+        "capabilities": [
+            "taxi"
+        ],
+        "hours": "24/7"
+    },
+    {
+        "id": "prov-rental-jfk",
+        "name": "Hertz LGA Express",
+        "location": {
+            "lat": 40.776,
+            "lng": -73.873,
+            "label": "LaGuardia Airport, Queens"
+        },
+        "capabilities": [
+            "rental"
+        ],
+        "hours": "06:00-23:00"
+    }
+]
