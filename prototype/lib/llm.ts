@@ -12,7 +12,7 @@ import { GoogleGenAI } from "@google/genai";
 // -- Per-agent model registry. Override any of these via env. -----------------
 export const MODELS = {
     intake: process.env.LLM_INTAKE_MODEL ?? "gpt-5",
-    damagePrimary: process.env.LLM_DAMAGE_MODEL ?? "gemini-3.1-pro",
+    damagePrimary: process.env.LLM_DAMAGE_MODEL ?? "gemini-3.1-pro-preview",
     damageFallback: process.env.LLM_DAMAGE_FALLBACK_MODEL ?? "gpt-5",
     coverage: process.env.LLM_COVERAGE_MODEL ?? "gpt-5",
     nba: process.env.LLM_NBA_MODEL ?? "gpt-5",
